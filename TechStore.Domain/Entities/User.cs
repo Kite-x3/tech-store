@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace TechStore.Domain.Entities
 {
@@ -7,10 +6,8 @@ namespace TechStore.Domain.Entities
     {
         [Key]
         public int UserId { get; set; }
-
         public string Username { get; set; }
         public string Email { get; set; }
-
         public string Password { get; set; }
     }
 }
