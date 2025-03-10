@@ -12,48 +12,99 @@ namespace TechStore.Application.Services
         {
             _productRepository = productRepository;
         }
+
         public async Task<IEnumerable<ProductDto>> GetProductsAsync(int? categoryId, string? name)
         {
             var products = await _productRepository.GetProductsAsync(categoryId, name);
+
             return products.Select(p => new ProductDto
             {
                 ProductId = p.ProductId,
                 Name = p.Name,
-                description = p.description,
-                price = p.price,
+                Description = p.Description,
+                Price = p.Price,
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt,
+                CategoryId = p.CategoryId,
             });
         }
-        public async Task CreateProductAsync(ProductDto product)
+
+        public async Task<ProductDto> GetProductByIdAsync(int productId)
         {
+            var product = await _productRepository.GetProductByIdAsync(productId)
+                ?? throw new KeyNotFoundException($"Product with ID {productId} not found.");
+
+            return new ProductDto
+            {
+                ProductId = product.ProductId,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                CreatedAt = product.CreatedAt,
+                UpdatedAt = product.UpdatedAt,
+                CategoryId = product.CategoryId,
+            };
+        }
+
+        public async Task CreateProductAsync(ProductDto productDto)
+        {
+            if (productDto == null)
+            {
+                throw new ArgumentNullException(nameof(productDto), "Product data cannot be null.");
+            }
+
+            if (string.IsNullOrWhiteSpace(productDto.Name))
+            {
+                throw new ArgumentException("Product name cannot be empty.", nameof(productDto.Name));
+            }
+
             var newProduct = new Product
             {
-                ProductId = product.ProductId,
-                Name = product.Name,
-                description = product.description,
-                price = product.price,
-                CreatedAt = product.CreatedAt,
-                UpdatedAt = product.UpdatedAt,
+                Name = productDto.Name,
+                Description = productDto.Description,
+                Price = productDto.Price,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                CategoryId = productDto.CategoryId
             };
+
             await _productRepository.CreateProductAsync(newProduct);
         }
-        public async Task UpdateProductAsync(ProductDto product)
+
+        public async Task UpdateProductAsync(ProductDto productDto)
         {
-            var updatedProduct = new Product
+            if (productDto == null)
             {
-                ProductId = product.ProductId,
-                Name = product.Name,
-                description = product.description,
-                price = product.price,
-                CreatedAt = product.CreatedAt,
-                UpdatedAt = product.UpdatedAt,
-            };
-            await _productRepository.UpdateProductAsync(updatedProduct);
+                throw new ArgumentNullException(nameof(productDto), "Product data cannot be null.");
+            }
+
+            if (string.IsNullOrWhiteSpace(productDto.Name))
+            {
+                throw new ArgumentException("Product name cannot be empty.", nameof(productDto.Name));
+            }
+
+            var existingProduct = await _productRepository.GetProductByIdAsync(productDto.ProductId);
+            if (existingProduct == null)
+            {
+                throw new KeyNotFoundException($"Product with ID {productDto.ProductId} not found.");
+            }
+
+            existingProduct.Name = productDto.Name;
+            existingProduct.Description = productDto.Description;
+            existingProduct.Price = productDto.Price;
+            existingProduct.UpdatedAt = DateTime.UtcNow;
+
+            await _productRepository.UpdateProductAsync(existingProduct);
         }
 
         public async Task DeleteProductAsync(int productId)
         {
+            var existingProduct = await _productRepository.GetProductByIdAsync(productId);
+            if (existingProduct == null)
+            {
+                throw new KeyNotFoundException($"Product with ID {productId} not found.");
+            }
+
             await _productRepository.DeleteProductAsync(productId);
         }
     }

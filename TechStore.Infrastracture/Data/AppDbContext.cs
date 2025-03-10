@@ -6,25 +6,22 @@ namespace TechStore.Infrastracture.Data
     public class AppDbContext : DbContext
     {
         public DbSet<Product> Products { get; set; }
-
         public DbSet<Category> Categories { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // Первичный ключ для Category
             modelBuilder.Entity<Category>().HasKey(c => c.CategoryId);
 
-            modelBuilder.Entity<Category>().
-                HasMany(c => c.Products).WithOne(p => p.Category).
-                HasForeignKey(p => p.ProductId).OnDelete(DeleteBehavior.Restrict);
-
             modelBuilder.Entity<Product>()
-                .HasOne(p => p.Category)  
-                .WithMany(c => c.Products) 
-                .HasForeignKey(p => p.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(p => p.Category)  // Один продукт принадлежит одной категории
+                .WithMany(c => c.Products) // Одна категория содержит много продуктов
+                .HasForeignKey(p => p.CategoryId) // Внешний ключ в таблице Product
+                .OnDelete(DeleteBehavior.Restrict); // Удаление категории запрещено, если есть связанные продукты
         }
     }
 }

@@ -1,7 +1,11 @@
-﻿namespace TechStore.Domain.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace TechStore.Domain.Entities
 {
     public class User
     {
+        [Key]
         public int UserId { get; set; }
 
         public string Username { get; set; }
