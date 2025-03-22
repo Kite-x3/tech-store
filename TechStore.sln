@@ -7,9 +7,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TechStore.Api", "TechStore\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TechStore.Application", "TechStore.Application\TechStore.Application.csproj", "{4F8153C9-3D16-4663-AF83-75FA5C9C06FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStore.Domain", "TechStore.Domain\TechStore.Domain.csproj", "{46CDF081-7316-4150-93C7-27B1867A6004}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TechStore.Domain", "TechStore.Domain\TechStore.Domain.csproj", "{46CDF081-7316-4150-93C7-27B1867A6004}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStore.Infrastracture", "TechStore.Infrastracture\TechStore.Infrastracture.csproj", "{C327B4C0-B3FC-4FF2-A8A5-C546954773E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TechStore.Infrastracture", "TechStore.Infrastracture\TechStore.Infrastracture.csproj", "{C327B4C0-B3FC-4FF2-A8A5-C546954773E3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{782E210D-9952-4EF2-9EF6-C3068D0571B4}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

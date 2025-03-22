@@ -8,6 +8,7 @@ namespace TechStore.Domain.Interfaces
         Task<IEnumerable<Category>> GetCategoriesAsync ();
         Task AddCategoryAsync(Category category);
         Task DeleteCategoryAsync (int id);
+        Task<bool> ExistsAsync(int categoryId);
         Task UpdateCategoryAsync(Category category);
     }
 }

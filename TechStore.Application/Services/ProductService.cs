@@ -7,10 +7,12 @@ namespace TechStore.Application.Services
     public class ProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public ProductService(IProductRepository productRepository)
+        public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
             _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<IEnumerable<ProductDto>> GetProductsAsync(int? categoryId, string? name)
@@ -58,6 +60,11 @@ namespace TechStore.Application.Services
                 throw new ArgumentException("Product name cannot be empty.", nameof(productDto.Name));
             }
 
+            if (!await _categoryRepository.ExistsAsync(productDto.CategoryId))
+            {
+                throw new ArgumentException($"Category with ID {productDto.CategoryId} does not exist.", nameof(productDto.CategoryId));
+            }
+
             var newProduct = new Product
             {
                 Name = productDto.Name,
@@ -89,10 +96,16 @@ namespace TechStore.Application.Services
                 throw new KeyNotFoundException($"Product with ID {productDto.ProductId} not found.");
             }
 
+            if (!await _categoryRepository.ExistsAsync(productDto.CategoryId))
+            {
+                throw new ArgumentException($"Category with ID {productDto.CategoryId} does not exist.", nameof(productDto.CategoryId));
+            }
+
             existingProduct.Name = productDto.Name;
             existingProduct.Description = productDto.Description;
             existingProduct.Price = productDto.Price;
             existingProduct.UpdatedAt = DateTime.UtcNow;
+            existingProduct.CategoryId = productDto.CategoryId;
 
             await _productRepository.UpdateProductAsync(existingProduct);
         }

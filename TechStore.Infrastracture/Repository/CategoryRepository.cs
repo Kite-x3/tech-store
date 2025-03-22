@@ -16,6 +16,11 @@ namespace TechStore.Infrastracture.Repository
             _context = context;
         }
 
+        public async Task<bool> ExistsAsync(int categoryId)
+        {
+            return await _context.Categories.AnyAsync(c => c.CategoryId == categoryId);
+        }
+
         public async Task AddCategoryAsync(Category category)
         {
             await _context.Categories.AddAsync(category);
