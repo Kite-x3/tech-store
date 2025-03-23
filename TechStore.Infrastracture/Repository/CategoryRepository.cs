@@ -2,8 +2,6 @@
 using TechStore.Domain.Entities;
 using TechStore.Domain.Interfaces;
 using TechStore.Infrastracture.Data;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace TechStore.Infrastracture.Repository
 {
