@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TechStore.Application.DTOs;
 using TechStore.Application.Services;
 
@@ -28,7 +29,7 @@ namespace TechStore.Api.Controllers
             var category = await _categoryService.GetCategoryByIdAsync(id);
             return Ok(category);
         }
-
+        [Authorize(Roles ="admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(int id, CategoryDto category)
         {
@@ -39,12 +40,14 @@ namespace TechStore.Api.Controllers
             await _categoryService.UpdateCategoryAsync(category);
             return NoContent();
         }
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> AddCategoryAsync(CategoryDto category)
         {
             await _categoryService.AddCategoryAsync(category);
             return Ok();
         }
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategoryAsync(int id)
         {

@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using TechStore.Application.Services;
 using TechStore.Domain.Entities;
 using TechStore.Domain.Interfaces;
@@ -22,7 +25,40 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
 
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SigningKey"]))
+        };
+
+        //// Обработка события 401
+        //options.Events = new JwtBearerEvents
+        //{
+        //    OnChallenge = async context =>
+        //    {
+        //        context.HandleResponse();
+        //        context.Response.StatusCode = 401;
+        //        context.Response.ContentType = "application/json";
+        //        await context.Response.WriteAsync("{\"error\":\"Unauthorized access\"}");
+        //    }
+        //};
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("admin"));
+    options.AddPolicy("RequireRoleUser", policy => policy.RequireRole("user"));
+});
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

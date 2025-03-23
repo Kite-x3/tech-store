@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TechStore.Application.DTOs;
 using TechStore.Application.Services;
@@ -21,12 +22,14 @@ namespace TechStore.Controllers
             var products = await _productService.GetProductsAsync(categoryId, name);
             return Ok(products);
         }
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> CreateProductAsync(ProductDto product)
         {
             await _productService.CreateProductAsync(product);
             return Ok();
         }
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProductAsync(int id, ProductDto product)
         {
@@ -37,6 +40,7 @@ namespace TechStore.Controllers
             await _productService.UpdateProductAsync(product);
             return NoContent();
         }
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProductAsync(int id)
         {
