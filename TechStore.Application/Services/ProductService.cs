@@ -48,22 +48,16 @@ namespace TechStore.Application.Services
             };
         }
 
-        public async Task CreateProductAsync(ProductDto productDto)
+        public async Task<ProductDto> CreateProductAsync(ProductDto productDto)
         {
             if (productDto == null)
-            {
                 throw new ArgumentNullException(nameof(productDto), "Product data cannot be null.");
-            }
 
             if (string.IsNullOrWhiteSpace(productDto.ProductName))
-            {
                 throw new ArgumentException("Product name cannot be empty.", nameof(productDto.ProductName));
-            }
 
             if (!await _categoryRepository.ExistsAsync(productDto.CategoryId))
-            {
                 throw new ArgumentException($"Category with ID {productDto.CategoryId} does not exist.", nameof(productDto.CategoryId));
-            }
 
             var newProduct = new Product
             {
@@ -75,9 +69,21 @@ namespace TechStore.Application.Services
                 CategoryId = productDto.CategoryId
             };
 
-            await _productRepository.CreateProductAsync(newProduct);
-            productDto.Id = newProduct.ProductId;
+            newProduct = await _productRepository.CreateProductAsync(newProduct);
+
+            return new ProductDto
+            {
+                Id = newProduct.ProductId,
+                ProductName = newProduct.Name,
+                Description = newProduct.Description,
+                Price = newProduct.Price,
+                CreatedAt = newProduct.CreatedAt,
+                UpdatedAt = newProduct.UpdatedAt,
+                CategoryId = newProduct.CategoryId
+            };
         }
+
+
 
         public async Task UpdateProductAsync(ProductDto productDto)
         {

@@ -26,8 +26,8 @@ namespace TechStore.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateProductAsync(ProductDto product)
         {
-            await _productService.CreateProductAsync(product);
-            return Ok();
+            var createdProduct = await _productService.CreateProductAsync(product);
+            return Ok(createdProduct);
         }
         //[Authorize(Roles = "admin")]
         [HttpPut("{id}")]

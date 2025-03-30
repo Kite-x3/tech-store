@@ -14,10 +14,11 @@ namespace TechStore.Infrastracture.Repository
             _context = context;
         }
 
-        public async Task CreateProductAsync(Product product)
+        public async Task<Product> CreateProductAsync(Product product)
         {
-            await _context.Products.AddAsync(product);
+            var createdProduct = (await _context.Products.AddAsync(product)).Entity;
             await _context.SaveChangesAsync();
+            return createdProduct;
         }
 
         public async Task DeleteProductAsync(int id)
