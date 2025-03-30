@@ -33,7 +33,7 @@ namespace TechStore.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProductAsync(int id, ProductDto product)
         {
-            if (id != product.ProductId)
+            if (id != product.Id)
             {
                 return BadRequest();
             }

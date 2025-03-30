@@ -21,7 +21,7 @@ namespace TechStore.Application.Services
 
             return products.Select(p => new ProductDto
             {
-                ProductId = p.ProductId,
+                Id = p.ProductId,
                 Name = p.Name,
                 Description = p.Description,
                 Price = p.Price,
@@ -38,7 +38,7 @@ namespace TechStore.Application.Services
 
             return new ProductDto
             {
-                ProductId = product.ProductId,
+                Id = product.ProductId,
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
@@ -76,6 +76,7 @@ namespace TechStore.Application.Services
             };
 
             await _productRepository.CreateProductAsync(newProduct);
+            productDto.Id = newProduct.ProductId;
         }
 
         public async Task UpdateProductAsync(ProductDto productDto)
@@ -90,10 +91,10 @@ namespace TechStore.Application.Services
                 throw new ArgumentException("Product name cannot be empty.", nameof(productDto.Name));
             }
 
-            var existingProduct = await _productRepository.GetProductByIdAsync(productDto.ProductId);
+            var existingProduct = await _productRepository.GetProductByIdAsync(productDto.Id);
             if (existingProduct == null)
             {
-                throw new KeyNotFoundException($"Product with ID {productDto.ProductId} not found.");
+                throw new KeyNotFoundException($"Product with ID {productDto.Id} not found.");
             }
 
             if (!await _categoryRepository.ExistsAsync(productDto.CategoryId))

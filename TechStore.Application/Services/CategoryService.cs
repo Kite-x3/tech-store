@@ -47,7 +47,7 @@ namespace TechStore.Application.Services
                 UpdatedAt = category.UpdatedAt,
                 Products = category.Products.Select(p => new ProductDto
                 {
-                    ProductId = p.ProductId,
+                    Id = p.ProductId,
                     Name = p.Name,
                     Price = p.Price,
                 }).ToList(),
