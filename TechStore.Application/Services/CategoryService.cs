@@ -48,7 +48,7 @@ namespace TechStore.Application.Services
                 Products = category.Products.Select(p => new ProductDto
                 {
                     Id = p.ProductId,
-                    Name = p.Name,
+                    ProductName = p.Name,
                     Price = p.Price,
                 }).ToList(),
             };

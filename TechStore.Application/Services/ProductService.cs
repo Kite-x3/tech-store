@@ -22,7 +22,7 @@ namespace TechStore.Application.Services
             return products.Select(p => new ProductDto
             {
                 Id = p.ProductId,
-                Name = p.Name,
+                ProductName = p.Name,
                 Description = p.Description,
                 Price = p.Price,
                 CreatedAt = p.CreatedAt,
@@ -39,7 +39,7 @@ namespace TechStore.Application.Services
             return new ProductDto
             {
                 Id = product.ProductId,
-                Name = product.Name,
+                ProductName = product.Name,
                 Description = product.Description,
                 Price = product.Price,
                 CreatedAt = product.CreatedAt,
@@ -55,9 +55,9 @@ namespace TechStore.Application.Services
                 throw new ArgumentNullException(nameof(productDto), "Product data cannot be null.");
             }
 
-            if (string.IsNullOrWhiteSpace(productDto.Name))
+            if (string.IsNullOrWhiteSpace(productDto.ProductName))
             {
-                throw new ArgumentException("Product name cannot be empty.", nameof(productDto.Name));
+                throw new ArgumentException("Product name cannot be empty.", nameof(productDto.ProductName));
             }
 
             if (!await _categoryRepository.ExistsAsync(productDto.CategoryId))
@@ -67,7 +67,7 @@ namespace TechStore.Application.Services
 
             var newProduct = new Product
             {
-                Name = productDto.Name,
+                Name = productDto.ProductName,
                 Description = productDto.Description,
                 Price = productDto.Price,
                 CreatedAt = DateTime.UtcNow,
@@ -86,9 +86,9 @@ namespace TechStore.Application.Services
                 throw new ArgumentNullException(nameof(productDto), "Product data cannot be null.");
             }
 
-            if (string.IsNullOrWhiteSpace(productDto.Name))
+            if (string.IsNullOrWhiteSpace(productDto.ProductName))
             {
-                throw new ArgumentException("Product name cannot be empty.", nameof(productDto.Name));
+                throw new ArgumentException("Product name cannot be empty.", nameof(productDto.ProductName));
             }
 
             var existingProduct = await _productRepository.GetProductByIdAsync(productDto.Id);
@@ -102,7 +102,7 @@ namespace TechStore.Application.Services
                 throw new ArgumentException($"Category with ID {productDto.CategoryId} does not exist.", nameof(productDto.CategoryId));
             }
 
-            existingProduct.Name = productDto.Name;
+            existingProduct.Name = productDto.ProductName;
             existingProduct.Description = productDto.Description;
             existingProduct.Price = productDto.Price;
             existingProduct.UpdatedAt = DateTime.UtcNow;
