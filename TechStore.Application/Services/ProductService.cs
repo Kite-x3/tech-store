@@ -48,7 +48,7 @@ namespace TechStore.Application.Services
             };
         }
 
-        public async Task<ProductDto> CreateProductAsync(ProductDto productDto)
+        public async Task CreateProductAsync(ProductDto productDto)
         {
             if (productDto == null)
                 throw new ArgumentNullException(nameof(productDto), "Product data cannot be null.");
@@ -69,18 +69,8 @@ namespace TechStore.Application.Services
                 CategoryId = productDto.CategoryId
             };
 
-            newProduct = await _productRepository.CreateProductAsync(newProduct);
-
-            return new ProductDto
-            {
-                Id = newProduct.ProductId,
-                ProductName = newProduct.Name,
-                Description = newProduct.Description,
-                Price = newProduct.Price,
-                CreatedAt = newProduct.CreatedAt,
-                UpdatedAt = newProduct.UpdatedAt,
-                CategoryId = newProduct.CategoryId
-            };
+            await _productRepository.CreateProductAsync(newProduct);
+            productDto.Id = newProduct.ProductId;
         }
 
 

@@ -14,11 +14,10 @@ namespace TechStore.Infrastracture.Repository
             _context = context;
         }
 
-        public async Task<Product> CreateProductAsync(Product product)
+        public async Task CreateProductAsync(Product product)
         {
-            var createdProduct = (await _context.Products.AddAsync(product)).Entity;
+            _context.Products.Add(product);
             await _context.SaveChangesAsync();
-            return createdProduct;
         }
 
         public async Task DeleteProductAsync(int id)
@@ -33,7 +32,9 @@ namespace TechStore.Infrastracture.Repository
 
         public async Task<Product?> GetProductByIdAsync(int id)
         {
-            return await _context.Products.FindAsync(id);
+            return await _context.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
         public async Task<IEnumerable<Product>> GetProductsAsync(int? categoryId, string? name)
