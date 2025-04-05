@@ -29,6 +29,12 @@ namespace TechStore.Controllers
             var createdProduct = await _productService.CreateProductAsync(product);
             return Ok(createdProduct);
         }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ProductDto>> GetProductById(int id)
+        {
+            var product = await _productService.GetProductByIdAsync(id);
+            return Ok(product);
+        }
         //[Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProductAsync(int id, ProductDto product)
