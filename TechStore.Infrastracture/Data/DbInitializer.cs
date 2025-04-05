@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TechStore.Domain.Entities;
 using TechStore.Infrastracture.Data;
 
@@ -8,6 +9,7 @@ namespace TechStore.Infrastructure.Data
     {
         public static async Task InitializeAsync(AppDbContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
+            context.Database.Migrate();
             context.Database.EnsureCreated();
 
             if (!roleManager.Roles.Any())

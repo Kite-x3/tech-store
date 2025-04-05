@@ -6,7 +6,7 @@ namespace TechStore.Domain.Interfaces
     {
         Task<Product> GetProductByIdAsync(int id);
         Task<IEnumerable<Product>> GetProductsAsync(int? categoryId, string? name);
-        Task<Product> CreateProductAsync(Product product);
+        Task CreateProductAsync(Product product);
         Task UpdateProductAsync(Product product);
         Task DeleteProductAsync(int id);
     }

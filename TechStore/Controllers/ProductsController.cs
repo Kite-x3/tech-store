@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TechStore.Application.DTOs;
 using TechStore.Application.Services;
@@ -22,18 +21,19 @@ namespace TechStore.Controllers
             var products = await _productService.GetProductsAsync(categoryId, name);
             return Ok(products);
         }
-        //[Authorize(Roles = "admin")] 
-        [HttpPost]
-        public async Task<IActionResult> CreateProductAsync(ProductDto product)
-        {
-            var createdProduct = await _productService.CreateProductAsync(product);
-            return Ok(createdProduct);
-        }
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductDto>> GetProductById(int id)
         {
             var product = await _productService.GetProductByIdAsync(id);
+            if (product == null) return NotFound();
             return Ok(product);
+        }
+        //[Authorize(Roles = "admin")] 
+        [HttpPost]
+        public async Task<ActionResult<ProductDto>> CreateProductAsync(ProductDto product)
+        {
+            await _productService.CreateProductAsync(product);
+            return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
         }
         //[Authorize(Roles = "admin")]
         [HttpPut("{id}")]
