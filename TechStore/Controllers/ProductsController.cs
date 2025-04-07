@@ -44,7 +44,7 @@ namespace TechStore.Controllers
                 return BadRequest();
             }
             await _productService.UpdateProductAsync(product);
-            return NoContent();
+            return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
         }
         //[Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
