@@ -51,7 +51,9 @@ namespace TechStore.Api.Controllers
             {
                 var user = await _userManager.FindByNameAsync(model.UserName);
                 var token = GenerateJwtToken(user);
-                return Ok(new { Token = token });
+                IList<string> roles = await _userManager.GetRolesAsync(user);
+                string userRole = roles.FirstOrDefault();
+                return Ok(new { Token = token,userName = user.UserName, userRole });
             }
             return Unauthorized();
         }
