@@ -8,6 +8,7 @@ namespace TechStore.Infrastracture.Data
     {
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Review> Reviews { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -23,6 +24,15 @@ namespace TechStore.Infrastracture.Data
                 .WithMany(c => c.Products) // Одна категория содержит много продуктов
                 .HasForeignKey(p => p.CategoryId) // Внешний ключ в таблице Product
                 .OnDelete(DeleteBehavior.Restrict); // Удаление категории запрещено, если есть связанные продукты
+
+            modelBuilder.Entity<Review>()
+                .HasKey(r => r.ReviewId);
+
+            modelBuilder.Entity<Review>()
+               .HasOne(r => r.Product)
+               .WithMany(p => p.Reviews)
+               .HasForeignKey(r => r.ProductId)
+               .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

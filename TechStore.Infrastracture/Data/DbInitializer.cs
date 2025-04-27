@@ -61,6 +61,61 @@ namespace TechStore.Infrastructure.Data
                 await context.Products.AddRangeAsync(products);
                 await context.SaveChangesAsync();
             }
+            if (!context.Reviews.Any())
+            {
+                var products = await context.Products.ToListAsync();
+                var users = await userManager.Users.ToListAsync();
+
+                var reviews = new List<Review>
+                {
+                    new Review {
+                        Author = users[0].UserName,
+                        Rating = 5,
+                        Comment = "Отличный ноутбук! Быстрый и удобный.",
+                        Date = DateTime.UtcNow.AddDays(-10),
+                        ProductId = products[0].ProductId
+                    },
+                    new Review {
+                        Author = users[1].UserName,
+                        Rating = 4,
+                        Comment = "Хороший ноутбук, но дорогой.",
+                        Date = DateTime.UtcNow.AddDays(-5),
+                        ProductId = products[0].ProductId
+                    },
+                    new Review {
+                        Author = "Аноним",
+                        Rating = 3,
+                        Comment = "Не впечатлил. Есть более дешевые альтернативы.",
+                        Date = DateTime.UtcNow.AddDays(-2),
+                        ProductId = products[1].ProductId
+                    },
+                    new Review {
+                        Author = users[0].UserName,
+                        Rating = 5,
+                        Comment = "Лучший смартфон на рынке!",
+                        Date = DateTime.UtcNow.AddDays(-7),
+                        ProductId = products[2].ProductId
+                    },
+                    new Review {
+                        Author = users[1].UserName,
+                        Rating = 4,
+                        Comment = "Хорошая камера, но батарея держит недолго.",
+                        Date = DateTime.UtcNow.AddDays(-3),
+                        ProductId = products[3].ProductId
+                    },
+                    new Review {
+                        Author = "Тестовый пользователь",
+                        Rating = 5,
+                        Comment = "Наушники просто супер! Шумоподавление на высоте.",
+                        Date = DateTime.UtcNow.AddDays(-1),
+                        ProductId = products[4].ProductId
+                    }
+                };
+
+                await context.Reviews.AddRangeAsync(reviews);
+                await context.SaveChangesAsync();
+            }
+
         }
     }
 }

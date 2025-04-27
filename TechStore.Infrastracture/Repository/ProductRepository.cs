@@ -34,6 +34,7 @@ namespace TechStore.Infrastracture.Repository
         {
             return await _context.Products
                 .Include(p => p.Category)
+                .Include(p => p.Reviews)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 

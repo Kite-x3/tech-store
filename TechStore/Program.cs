@@ -9,6 +9,7 @@ using TechStore.Domain.Interfaces;
 using TechStore.Infrastracture.Data;
 using TechStore.Infrastracture.Repository;
 using TechStore.Infrastructure.Data;
+using TechStore.Infrastructure.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,9 +63,11 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<ReviewService>();
 
 var app = builder.Build();
 
