@@ -12,6 +12,9 @@ namespace TechStore.Domain.Entities
         public string Author { get; set; }
 
         [Required]
+        public string AuthorID { get; set; }
+
+        [Required]
         [Range(1, 5)]
         public int Rating { get; set; }
 

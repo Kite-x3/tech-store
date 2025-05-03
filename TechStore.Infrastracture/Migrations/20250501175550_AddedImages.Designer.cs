@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TechStore.Infrastracture.Data;
@@ -11,9 +12,11 @@ using TechStore.Infrastracture.Data;
 namespace TechStore.Infrastracture.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250501175550_AddedImages")]
+    partial class AddedImages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -154,7 +157,30 @@ namespace TechStore.Infrastracture.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Product", b =>
+            modelBuilder.Entity("TechStore.Domain.Entities.Category", b =>
+                {
+                    b.Property<int>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("CategoryId");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("TechStore.Domain.Entities.Product", b =>
                 {
                     b.Property<int>("ProductId")
                         .ValueGeneratedOnAdd()
@@ -195,29 +221,6 @@ namespace TechStore.Infrastracture.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("TechStore.Domain.Entities.Category", b =>
-                {
-                    b.Property<int>("CategoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("CategoryId");
-
-                    b.ToTable("Categories");
-                });
-
             modelBuilder.Entity("TechStore.Domain.Entities.Review", b =>
                 {
                     b.Property<int>("ReviewId")
@@ -227,10 +230,6 @@ namespace TechStore.Infrastracture.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReviewId"));
 
                     b.Property<string>("Author")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("AuthorID")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -369,7 +368,7 @@ namespace TechStore.Infrastracture.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Product", b =>
+            modelBuilder.Entity("TechStore.Domain.Entities.Product", b =>
                 {
                     b.HasOne("TechStore.Domain.Entities.Category", "Category")
                         .WithMany("Products")
@@ -382,7 +381,7 @@ namespace TechStore.Infrastracture.Migrations
 
             modelBuilder.Entity("TechStore.Domain.Entities.Review", b =>
                 {
-                    b.HasOne("Product", "Product")
+                    b.HasOne("TechStore.Domain.Entities.Product", "Product")
                         .WithMany("Reviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -391,14 +390,14 @@ namespace TechStore.Infrastracture.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Product", b =>
-                {
-                    b.Navigation("Reviews");
-                });
-
             modelBuilder.Entity("TechStore.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("TechStore.Domain.Entities.Product", b =>
+                {
+                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

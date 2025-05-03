@@ -25,6 +25,13 @@ namespace TechStore.Infrastracture.Data
                 .HasForeignKey(p => p.CategoryId) // Внешний ключ в таблице Product
                 .OnDelete(DeleteBehavior.Restrict); // Удаление категории запрещено, если есть связанные продукты
 
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.Property(p => p.ImageUrlsJson)
+                    .HasDefaultValue("[]") // Значение по умолчанию
+                    .IsRequired(); // Обязательное поле
+            });
+
             modelBuilder.Entity<Review>()
                 .HasKey(r => r.ReviewId);
 

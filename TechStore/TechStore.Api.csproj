@@ -21,4 +21,8 @@
     <ProjectReference Include="..\TechStore.Infrastracture\TechStore.Infrastracture.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ProductImages\" />
+  </ItemGroup>
+
 </Project>
