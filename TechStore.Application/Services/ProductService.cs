@@ -18,9 +18,46 @@ namespace TechStore.Application.Services
             _imageService = imageService;
         }
 
-        public async Task<IEnumerable<ProductDto>> GetProductsAsync(int? categoryId, string? name)
+        public async Task<PaginatedResponse<ProductDto>> GetProductsByCategoryAsync(
+            ProductQueryParams queryParams)
         {
-            var products = await _productRepository.GetProductsAsync(categoryId, name);
+            if (queryParams.CategoryId.HasValue &&
+            !await _categoryRepository.ExistsAsync(queryParams.CategoryId.Value))
+            {
+                throw new KeyNotFoundException($"Category with id {queryParams.CategoryId} not found");
+            }
+
+            var (products, totalCount) = await _productRepository.GetFilteredProductsAsync(
+                queryParams.CategoryId,
+                queryParams.PageNumber,
+                queryParams.PageSize,
+                queryParams.SortBy,
+                queryParams.SortDescending,
+                queryParams.MinPrice,
+                queryParams.MaxPrice);
+
+            return new PaginatedResponse<ProductDto>
+            {
+                Items = products.Select(p => new ProductDto
+                {
+                    Id = p.ProductId,
+                    ProductName = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt,
+                    CategoryId = p.CategoryId,
+                    ImageUrls = p.ImageUrls
+                }),
+                TotalCount = totalCount,
+                PageNumber = queryParams.PageNumber,
+                PageSize = queryParams.PageSize
+            };
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsAsync()
+        {
+            var products = await _productRepository.GetProductsAsync();
 
             return products.Select(p => new ProductDto
             {
@@ -74,7 +111,7 @@ namespace TechStore.Application.Services
                 Description = productDto.Description,
                 Price = productDto.Price,
                 CategoryId = productDto.CategoryId,
-                ImageUrls = imageUrls 
+                ImageUrls = imageUrls
             };
 
             await _productRepository.CreateProductAsync(newProduct);

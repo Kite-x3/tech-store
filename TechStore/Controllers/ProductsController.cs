@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 using TechStore.Application.DTOs;
 using TechStore.Application.Services;
-using TechStore.Domain.Entities;
 
 namespace TechStore.Controllers
 {
@@ -18,11 +16,17 @@ namespace TechStore.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsAsync(
-            [FromQuery] int? categoryId, 
-            [FromQuery] string? name)
+        public async Task<ActionResult<PaginatedResponse<ProductDto>>> GetProductsByCategory(
+            [FromQuery] ProductQueryParams queryParams)
         {
-            var products = await _productService.GetProductsAsync(categoryId, name);
+            var result = await _productService.GetProductsByCategoryAsync(queryParams);
+            return Ok(result);
+        }
+
+        [HttpGet("main")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsAsync()
+        {
+            var products = await _productService.GetProductsAsync();
             return Ok(products);
         }
         [HttpGet("{id}")]

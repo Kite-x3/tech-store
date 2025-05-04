@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TechStore.Domain.Entities;
 using TechStore.Domain.Interfaces;
 using TechStore.Infrastracture.Data;
 
@@ -12,6 +11,51 @@ namespace TechStore.Infrastracture.Repository
         public ProductRepository(AppDbContext context)
         {
             _context = context;
+        }
+        public async Task<(IEnumerable<Product> products, int totalCount)> GetFilteredProductsAsync(
+            int? categoryId,
+            int pageNumber,
+            int pageSize,
+            string sortBy,
+            bool sortDescending,
+            decimal? minPrice,
+            decimal? maxPrice)
+        {
+            var query = _context.Products.AsQueryable();
+
+            // Фильтрация
+            if (categoryId.HasValue)
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+
+            if (minPrice.HasValue)
+                query = query.Where(p => p.Price >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                query = query.Where(p => p.Price <= maxPrice.Value);
+
+            // Сортировка
+            query = sortBy?.ToLower() switch
+            {
+                "price" => sortDescending
+                    ? query.OrderByDescending(p => p.Price)
+                    : query.OrderBy(p => p.Price),
+                "name" => sortDescending
+                    ? query.OrderByDescending(p => p.Name)
+                    : query.OrderBy(p => p.Name),
+                "date" => sortDescending
+                    ? query.OrderByDescending(p => p.CreatedAt)
+                    : query.OrderBy(p => p.CreatedAt),
+                _ => query.OrderBy(p => p.ProductId)
+            };
+
+            // Пагинация
+            var totalCount = await query.CountAsync();
+            var products = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (products, totalCount);
         }
 
         public async Task CreateProductAsync(Product product)
@@ -38,21 +82,9 @@ namespace TechStore.Infrastracture.Repository
                 .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
-        public async Task<IEnumerable<Product>> GetProductsAsync(int? categoryId, string? name)
+        public async Task<IEnumerable<Product>> GetProductsAsync()
         {
-            IQueryable<Product> query = _context.Products;
-
-            if (categoryId.HasValue)
-            {
-                query = query.Where(p => p.CategoryId == categoryId.Value);
-            }
-
-            if (!string.IsNullOrEmpty(name))
-            {
-                query = query.Where(p => p.Name.Contains(name));
-            }
-
-            return await query.ToListAsync();
+            return await _context.Products.ToListAsync();
         }
 
         public async Task UpdateProductAsync(Product product)
