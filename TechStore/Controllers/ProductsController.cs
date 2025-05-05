@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using TechStore.Application.DTOs;
 using TechStore.Application.Services;
 
@@ -83,20 +84,47 @@ namespace TechStore.Controllers
             }
         }
 
-
         //[Authorize(Roles = "admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProductAsync(int id, ProductDto product,
-            [FromForm] List<IFormFile> newImages = null,
-            [FromForm] List<string> imagesToDelete = null)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateProductAsync(
+            int id,
+            [FromForm] ProductDto request,
+            [FromForm] string? imagesToDelete = null)
         {
-            if (id != product.Id)
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (id != request.Id)
+                return BadRequest("ID mismatch");
+
+            try
             {
-                return BadRequest();
+                // Получаем новые изображения
+                var newImageFiles = Request.Form.Files
+                    .Where(f => f.Name.StartsWith("image"))
+                    .ToList();
+
+                // Десериализуем imagesToDelete
+                List<string>? imagesToDeleteList = null;
+                if (!string.IsNullOrEmpty(imagesToDelete))
+                {
+                    imagesToDeleteList = JsonSerializer.Deserialize<List<string>>(imagesToDelete);
+                }
+
+                await _productService.UpdateProductAsync(request, newImageFiles, imagesToDeleteList);
+
+                return CreatedAtAction(
+                    nameof(GetProductById),
+                    new { id = request.Id },
+                    request);
             }
-            await _productService.UpdateProductAsync(product, newImages, imagesToDelete);
-            return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
+
         //[Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProductAsync(int id)

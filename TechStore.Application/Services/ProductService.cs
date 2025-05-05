@@ -124,7 +124,7 @@ namespace TechStore.Application.Services
 
 
 
-        public async Task UpdateProductAsync(ProductDto productDto, List<IFormFile> newImages = null, List<string> imagesToDelete = null)
+        public async Task UpdateProductAsync(ProductDto productDto, List<IFormFile>? newImages = null, List<string>? imagesToDelete = null)
         {
             if (productDto == null)
             {
@@ -147,31 +147,37 @@ namespace TechStore.Application.Services
                 throw new ArgumentException($"Category with ID {productDto.CategoryId} does not exist.", nameof(productDto.CategoryId));
             }
 
+            var currentImageUrls = existingProduct.ImageUrls.ToList();
+
             if (imagesToDelete != null && imagesToDelete.Any())
             {
                 foreach (var imageUrl in imagesToDelete)
                 {
                     await _imageService.DeleteImageAsync(imageUrl);
-                    existingProduct.ImageUrls.Remove(imageUrl);
+                    currentImageUrls.Remove(imageUrl); 
                 }
             }
 
-            if (newImages != null && newImages.Any())
+            var newImageUrls = new List<string>();
+            if (newImages != null && newImages.Count > 0)
             {
                 foreach (var imageFile in newImages)
                 {
                     var imageUrl = await _imageService.SaveImageAsync(imageFile);
-                    existingProduct.ImageUrls.Add(imageUrl);
+                    newImageUrls.Add(imageUrl);
                 }
+                currentImageUrls.AddRange(newImageUrls);
             }
 
             existingProduct.Name = productDto.ProductName;
             existingProduct.Description = productDto.Description;
             existingProduct.Price = productDto.Price;
-            existingProduct.UpdatedAt = DateTime.UtcNow;
             existingProduct.CategoryId = productDto.CategoryId;
+            existingProduct.UpdatedAt = DateTime.UtcNow;
+            existingProduct.ImageUrls = currentImageUrls;
 
             await _productRepository.UpdateProductAsync(existingProduct);
+
             productDto.ImageUrls = existingProduct.ImageUrls;
             productDto.UpdatedAt = existingProduct.UpdatedAt;
         }
