@@ -30,14 +30,15 @@ namespace TechStore.Api.Controllers
         public async Task<IActionResult> Register(RegisterModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            //var user = new User { UserName = model.UserName, Email = model.Email };
-            var user = new User { UserName = model.UserName };
+            var user = new User { UserName = model.UserName, Email = model.Email };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
-                //await _userManager.AddToRoleAsync(user, model.Role);
                 await _userManager.AddToRoleAsync(user, "user");
-                return Ok(new { Message = "User registered successfully" });
+                var token = GenerateJwtToken(user);
+                IList<string> roles = await _userManager.GetRolesAsync(user);
+                string userRole = roles.FirstOrDefault();
+                return Ok(new { Token = token, userName = user.UserName, userRole });
             }
             return BadRequest(result.Errors);
         }
