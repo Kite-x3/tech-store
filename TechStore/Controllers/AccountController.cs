@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -30,6 +31,10 @@ namespace TechStore.Api.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var user = new User { UserName = model.UserName, Email = model.Email };
             var result = await _userManager.CreateAsync(user, model.Password);
+
+            var roles = await _userManager.GetRolesAsync(user);
+            string userRole = roles.FirstOrDefault();
+
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
@@ -37,7 +42,8 @@ namespace TechStore.Api.Controllers
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName)
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Role, userRole)
                 },
                 expires: DateTime.UtcNow.AddDays(7),
                 signingCredentials: new SigningCredentials(
@@ -47,8 +53,6 @@ namespace TechStore.Api.Controllers
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "user");
-                IList<string> roles = await _userManager.GetRolesAsync(user);
-                string userRole = roles.FirstOrDefault();
                 return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token)
                     , userName = user.UserName, userRole });
             }
@@ -74,7 +78,8 @@ namespace TechStore.Api.Controllers
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName)
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Role, userRole)
                 },
                 expires: DateTime.UtcNow.AddDays(7),
                 signingCredentials: new SigningCredentials(
