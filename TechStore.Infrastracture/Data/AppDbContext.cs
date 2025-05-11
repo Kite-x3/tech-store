@@ -60,8 +60,7 @@ namespace TechStore.Infrastracture.Data
             modelBuilder.Entity<CartItem>()
                 .HasOne(ci => ci.Product)
                 .WithMany()
-                .HasForeignKey(ci => ci.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(ci => ci.ProductId);
             
             modelBuilder.Entity<OrderStatus>().HasData(
             new OrderStatus { OrderStatusId = 1, Name = "Pending", Description = "Order is pending processing" },
@@ -92,8 +91,7 @@ namespace TechStore.Infrastracture.Data
             modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.Product)
                 .WithMany()
-                .HasForeignKey(oi => oi.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(oi => oi.ProductId);
         }
     }
 }
