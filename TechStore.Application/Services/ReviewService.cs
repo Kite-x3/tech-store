@@ -14,7 +14,12 @@ namespace TechStore.Application.Services
             _reviewRepository = reviewRepository;
             _productRepository = productRepository;
         }
-
+        /// <summary>
+        /// Получает отзывы для товара
+        /// </summary>
+        /// <param name="productId">ID товара</param>
+        /// <returns>Список DTO отзывов</returns>
+        /// <exception cref="KeyNotFoundException">Если товар не найден</exception>
         public async Task<IEnumerable<ReviewDto>> GetReviewsByProductIdAsync(int productId)
         {
             var product = await _productRepository.GetProductByIdAsync(productId);
@@ -32,7 +37,12 @@ namespace TechStore.Application.Services
                 ProductId = r.ProductId
             });
         }
-
+        /// <summary>
+        /// Получает отзыв по ID
+        /// </summary>
+        /// <param name="reviewId">ID отзыва</param>
+        /// <returns>DTO отзыва</returns>
+        /// <exception cref="KeyNotFoundException">Если отзыв не найден</exception>
         public async Task<ReviewDto> GetReviewByIdAsync(int reviewId)
         {
             var review = await _reviewRepository.GetReviewByIdAsync(reviewId);
@@ -49,7 +59,12 @@ namespace TechStore.Application.Services
                 ProductId = review.ProductId
             };
         }
-
+        /// <summary>
+        /// Создает новый отзыв
+        /// </summary>
+        /// <param name="reviewDto">DTO с данными отзыва</param>
+        /// <exception cref="ArgumentNullException">Если данные отзыва не указаны</exception>
+        /// <exception cref="ArgumentException">Если товар не существует</exception>
         public async Task CreateReviewAsync(ReviewDto reviewDto)
         {
             if (reviewDto == null)
@@ -71,7 +86,11 @@ namespace TechStore.Application.Services
             await _reviewRepository.CreateReviewAsync(review);
             reviewDto.Id = review.ReviewId;
         }
-
+        /// <summary>
+        /// Удаляет отзыв
+        /// </summary>
+        /// <param name="reviewId">ID отзыва</param>
+        /// <exception cref="KeyNotFoundException">Если отзыв не найден</exception>
         public async Task DeleteReviewAsync(int reviewId)
         {
             var review = await _reviewRepository.GetReviewByIdAsync(reviewId);

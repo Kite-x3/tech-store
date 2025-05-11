@@ -18,7 +18,12 @@ public class OrderService
         _productRepository = productRepository;
         _orderStatusRepository = orderStatusRepository;
     }
-
+    /// <summary>
+    /// Получает заказ по ID
+    /// </summary>
+    /// <param name="id">ID заказа</param>
+    /// <returns>DTO заказа</returns>
+    /// <exception cref="KeyNotFoundException">Если заказ не найден</exception>
     public async Task<OrderDto> GetOrderByIdAsync(int id)
     {
         var order = await _orderRepository.GetOrderByIdAsync(id);
@@ -27,19 +32,33 @@ public class OrderService
 
         return MapToDto(order);
     }
-
+    /// <summary>
+    /// Получает все заказы
+    /// </summary>
+    /// <returns>Список DTO заказов</returns>
     public async Task<IEnumerable<OrderDto>> GetOrdersAsync()
     {
         var orders = await _orderRepository.GetOrdersAsync();
         return orders.Select(MapToDto);
     }
-
+    /// <summary>
+    /// Получает заказы пользователя
+    /// </summary>
+    /// <param name="userId">ID пользователя</param>
+    /// <returns>Список DTO заказов пользователя</returns>
     public async Task<IEnumerable<OrderDto>> GetUserOrdersAsync(string userId)
     {
         var orders = await _orderRepository.GetUserOrdersAsync(userId);
         return orders.Select(MapToDto);
     }
-
+    /// <summary>
+    /// Создает новый заказ
+    /// </summary>
+    /// <param name="userId">ID пользователя</param>
+    /// <param name="orderDto">DTO с данными для создания заказа</param>
+    /// <returns>DTO созданного заказа</returns>
+    /// <exception cref="Exception">Если статус "Pending" не найден</exception>
+    /// <exception cref="KeyNotFoundException">Если товар не найден</exception>
     public async Task<OrderDto> CreateOrderAsync(string userId, CreateOrderDto orderDto)
     {
         var pendingStatus = await _orderStatusRepository.GetStatusByNameAsync("Pending");
@@ -80,7 +99,12 @@ public class OrderService
 
         return MapToDto(order);
     }
-
+    /// <summary>
+    /// Обновляет статус заказа
+    /// </summary>
+    /// <param name="orderId">ID заказа</param>
+    /// <param name="statusId">ID нового статуса</param>
+    /// <exception cref="KeyNotFoundException">Если заказ или статус не найдены</exception>
     public async Task UpdateOrderStatusAsync(int orderId, int statusId)
     {
         var order = await _orderRepository.GetOrderByIdAsync(orderId);
@@ -96,7 +120,10 @@ public class OrderService
 
         await _orderRepository.UpdateOrderAsync(order);
     }
-
+    /// <summary>
+    /// Получает все возможные статусы заказов
+    /// </summary>
+    /// <returns>Список DTO статусов заказов</returns>
     public async Task<IEnumerable<OrderStatusDto>> GetOrderStatusesAsync()
     {
         var statuses = await _orderStatusRepository.GetAllStatusesAsync();
@@ -107,7 +134,13 @@ public class OrderService
             Description = s.Description
         });
     }
-
+    /// <summary>
+    /// Конвертирует объект заказа из серверной ef сущности в DTO сущность
+    /// </summary>
+    /// <param name="order">Серверная ef сущность заказа</param>
+    /// <returns>DTO сущность</returns>
+    /// <exception cref="ArgumentNullException">Если объект null</exception>
+    /// <exception cref="InvalidOperationException">Если нет статуса</exception>
     private static OrderDto MapToDto(Order order)
     {
         if (order == null)

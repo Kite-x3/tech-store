@@ -14,7 +14,11 @@ namespace TechStore.Application.Services
             _cartRepository = cartRepository;
             _productRepository = productRepository;
         }
-
+        /// <summary>
+        /// Получает корзину пользователя
+        /// </summary>
+        /// <param name="userId">ID пользователя</param>
+        /// <returns>DTO корзины с товарами</returns>
         public async Task<CartDto> GetCartByUserIdAsync(string userId)
         {
             var cart = await _cartRepository.GetCartByUserIdAsync(userId);
@@ -37,7 +41,13 @@ namespace TechStore.Application.Services
                 }).ToList()
             }; ;
         }
-
+        /// <summary>
+        /// Добавляет товар в корзину
+        /// </summary>
+        /// <param name="userId">ID пользователя</param>
+        /// <param name="productId">ID товара</param>
+        /// <param name="quantity">Количество (по умолчанию 1)</param>
+        /// <returns>Обновленное DTO корзины</returns>
         public async Task<CartDto> AddItemToCartAsync(string userId, int productId, int quantity = 1)
         {
             var product = await _productRepository.GetProductByIdAsync(productId);
@@ -73,7 +83,12 @@ namespace TechStore.Application.Services
 
             return await GetCartByUserIdAsync(userId);
         }
-
+        /// <summary>
+        /// Обновляет количество товара в корзине
+        /// </summary>
+        /// <param name="cartItemId">ID элемента корзины</param>
+        /// <param name="quantity">Новое количество</param>
+        /// <returns>Обновленное DTO корзины</returns>
         public async Task<CartDto> UpdateCartItemAsync(int cartItemId, int quantity)
         {
             var item = await _cartRepository.GetCartItemAsync(cartItemId);
@@ -81,12 +96,18 @@ namespace TechStore.Application.Services
             await _cartRepository.UpdateCartItemAsync(item);
             return await GetCartByUserIdAsync(item.Cart.UserId);
         }
-
+        /// <summary>
+        /// Удаляет товар из корзины
+        /// </summary>
+        /// <param name="cartItemId">ID элемента корзины</param>
         public async Task RemoveCartItemAsync(int cartItemId)
         {
             await _cartRepository.RemoveCartItemAsync(cartItemId);
         }
-
+        /// <summary>
+        /// Очищает корзину пользователя
+        /// </summary>
+        /// <param name="userId">ID пользователя</param>
         public async Task ClearCartAsync(string userId)
         {
             var cart = await _cartRepository.GetCartByUserIdAsync(userId);

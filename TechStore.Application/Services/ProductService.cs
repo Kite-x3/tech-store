@@ -17,7 +17,12 @@ namespace TechStore.Application.Services
             _categoryRepository = categoryRepository;
             _imageService = imageService;
         }
-
+        /// <summary>
+        /// Получает товары по категории с фильтрацией и пагинацией
+        /// </summary>
+        /// <param name="queryParams">Параметры запроса</param>
+        /// <returns>Пагинированный список DTO товаров</returns>
+        /// <exception cref="KeyNotFoundException">Если категория не найдена</exception>
         public async Task<PaginatedResponse<ProductDto>> GetProductsByCategoryAsync(
             ProductQueryParams queryParams)
         {
@@ -54,7 +59,10 @@ namespace TechStore.Application.Services
                 PageSize = queryParams.PageSize
             };
         }
-
+        /// <summary>
+        /// Получает список товаров
+        /// </summary>
+        /// <returns>Список DTO товаров</returns>
         public async Task<IEnumerable<ProductDto>> GetProductsAsync()
         {
             var products = await _productRepository.GetProductsAsync();
@@ -71,7 +79,12 @@ namespace TechStore.Application.Services
                 ImageUrls = p.ImageUrls
             });
         }
-
+        /// <summary>
+        /// Получает товар по ID
+        /// </summary>
+        /// <param name="productId">ID товара</param>
+        /// <returns>DTO товара</returns>
+        /// <exception cref="KeyNotFoundException">Если товар не найден</exception>
         public async Task<ProductDto> GetProductByIdAsync(int productId)
         {
             var product = await _productRepository.GetProductByIdAsync(productId)
@@ -89,7 +102,12 @@ namespace TechStore.Application.Services
                 ImageUrls = product.ImageUrls,
             };
         }
-
+        /// <summary>
+        /// Создает новый товар
+        /// </summary>
+        /// <param name="productDto">DTO с данными товара</param>
+        /// <param name="imageFiles">Файлы изображений (опционально)</param>
+        /// <exception cref="ArgumentNullException">Если данные товара не указаны</exception>
         public async Task CreateProductAsync(ProductDto productDto, List<IFormFile> imageFiles = null)
         {
             if (productDto == null)
@@ -123,7 +141,15 @@ namespace TechStore.Application.Services
         }
 
 
-
+        /// <summary>
+        /// Обновляет данные товара
+        /// </summary>
+        /// <param name="productDto">DTO с обновленными данными</param>
+        /// <param name="newImages">Новые изображения (опционально)</param>
+        /// <param name="imagesToDelete">Изображения для удаления (опционально)</param>
+        /// <exception cref="ArgumentNullException">Если данные товара не указаны</exception>
+        /// <exception cref="ArgumentException">Если название товара пустое</exception>
+        /// <exception cref="KeyNotFoundException">Если товар или категория не найдены</exception>
         public async Task UpdateProductAsync(ProductDto productDto, List<IFormFile>? newImages = null, List<string>? imagesToDelete = null)
         {
             if (productDto == null)
@@ -181,7 +207,11 @@ namespace TechStore.Application.Services
             productDto.ImageUrls = existingProduct.ImageUrls;
             productDto.UpdatedAt = existingProduct.UpdatedAt;
         }
-
+        /// <summary>
+        /// Удаляет товар
+        /// </summary>
+        /// <param name="productId">ID товара</param>
+        /// <exception cref="KeyNotFoundException">Если товар не найден</exception>
         public async Task DeleteProductAsync(int productId)
         {
             var existingProduct = await _productRepository.GetProductByIdAsync(productId);

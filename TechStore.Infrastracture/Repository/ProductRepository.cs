@@ -12,6 +12,17 @@ namespace TechStore.Infrastracture.Repository
         {
             _context = context;
         }
+        /// <summary>
+        /// Получает отфильтрованный список товаров с пагинацией и сортировкой
+        /// </summary>
+        /// <param name="categoryId">ID категории для фильтрации (опционально)</param>
+        /// <param name="pageNumber">Номер страницы (начиная с 1)</param>
+        /// <param name="pageSize">Количество элементов на странице</param>
+        /// <param name="sortBy">Поле для сортировки (price/name/date)</param>
+        /// <param name="sortDescending">Направление сортировки (по убыванию)</param>
+        /// <param name="minPrice">Минимальная цена для фильтрации (опционально)</param>
+        /// <param name="maxPrice">Максимальная цена для фильтрации (опционально)</param>
+        /// <returns>Кортеж (список товаров, общее количество)</returns>
         public async Task<(IEnumerable<Product> products, int totalCount)> GetFilteredProductsAsync(
             int? categoryId,
             int pageNumber,
@@ -57,13 +68,19 @@ namespace TechStore.Infrastracture.Repository
 
             return (products, totalCount);
         }
-
+        /// <summary>
+        /// Создает новый товар в базе данных
+        /// </summary>
+        /// <param name="product">Объект товара для создания</param>
         public async Task CreateProductAsync(Product product)
         {
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
         }
-
+        /// <summary>
+        /// Удаляет товар по указанному ID
+        /// </summary>
+        /// <param name="id">ID товара для удаления</param>
         public async Task DeleteProductAsync(int id)
         {
             var product = await _context.Products.FindAsync(id);
@@ -73,7 +90,11 @@ namespace TechStore.Infrastracture.Repository
                 await _context.SaveChangesAsync();
             }
         }
-
+        /// <summary>
+        /// получение товара по его id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Найденный товар или null</returns>
         public async Task<Product?> GetProductByIdAsync(int id)
         {
             return await _context.Products
@@ -82,11 +103,33 @@ namespace TechStore.Infrastracture.Repository
                 .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
+        /// <summary>
+        /// получение нескольких случайных товаров для главной страницы
+        /// </summary>
+        /// <returns>Список случайных товаров</returns>
         public async Task<IEnumerable<Product>> GetProductsAsync()
         {
-            return await _context.Products.ToListAsync();
-        }
+            var random = new Random();
+            var count = await _context.Products.CountAsync();
+            var products = new List<Product>();
 
+            for (int i = 0; i < 10; i++)
+            {
+                var skip = random.Next(0, count);
+                var product = await _context.Products
+                    .Skip(skip)
+                    .FirstOrDefaultAsync();
+
+                if (product != null)
+                    products.Add(product);
+            }
+
+            return products;
+        }
+        /// <summary>
+        /// Обновляет информацию о товаре в базе данных
+        /// </summary>
+        /// <param name="product">Объект товара с обновленными данными</param>
         public async Task UpdateProductAsync(Product product)
         {
             _context.Products.Update(product);

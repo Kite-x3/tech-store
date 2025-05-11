@@ -15,7 +15,12 @@ namespace TechStore.Application.Services
 
             Directory.CreateDirectory(_productImagesPath);
         }
-
+        /// <summary>
+        /// Сохраняет изображение на сервере
+        /// </summary>
+        /// <param name="imageFile">Файл изображения</param>
+        /// <returns>URL сохраненного изображения</returns>
+        /// <exception cref="ArgumentException">Если файл пустой, недопустимого формата или превышает размер</exception>
         public async Task<string> SaveImageAsync(IFormFile imageFile)
         {
             if (imageFile == null || imageFile.Length == 0)
@@ -42,7 +47,10 @@ namespace TechStore.Application.Services
 
             return $"/images/{uniqueFileName}";
         }
-
+        /// <summary>
+        /// Удаляет изображение с сервера
+        /// </summary>
+        /// <param name="imagePath">Клиентский относительный путь к изображению</param>
         public Task DeleteImageAsync(string imagePath)
         {
             if (string.IsNullOrEmpty(imagePath))

@@ -12,7 +12,11 @@ namespace TechStore.Application.Services
         {
             _categoryRepository = categoryRepository;
         }
-
+        /// <summary>
+        /// Получает список категорий
+        /// </summary>
+        /// <returns>Список DTO категорий</returns>
+        /// <exception cref="KeyNotFoundException">Если категории не найдены</exception>
         public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync()
         {
             var categories = await _categoryRepository.GetCategoriesAsync();
@@ -30,7 +34,12 @@ namespace TechStore.Application.Services
                 UpdatedAt = c.UpdatedAt,
             });
         }
-
+        /// <summary>
+        /// Получает категорию по ID
+        /// </summary>
+        /// <param name="id">ID категории</param>
+        /// <returns>DTO категории с товарами</returns>
+        /// <exception cref="KeyNotFoundException">Если категория не найдена</exception>
         public async Task<CategoryDto> GetCategoryByIdAsync(int id)
         {
             var category = await _categoryRepository.GetCategoryByIdAsync(id);
@@ -53,7 +62,12 @@ namespace TechStore.Application.Services
                 }).ToList(),
             };
         }
-
+        /// <summary>
+        /// Создает новую категорию
+        /// </summary>
+        /// <param name="categoryDto">DTO с данными категории</param>
+        /// <exception cref="ArgumentNullException">Если данные категории не указаны</exception>
+        /// <exception cref="ArgumentException">Если название категории пустое</exception>
         public async Task AddCategoryAsync(CategoryDto categoryDto)
         {
             if (categoryDto == null)
@@ -75,7 +89,13 @@ namespace TechStore.Application.Services
 
             await _categoryRepository.AddCategoryAsync(category);
         }
-
+        /// <summary>
+        /// Обновляет данные категории
+        /// </summary>
+        /// <param name="categoryDto">DTO с обновленными данными</param>
+        /// <exception cref="ArgumentNullException">Если данные категории не указаны</exception>
+        /// <exception cref="ArgumentException">Если название категории пустое</exception>
+        /// <exception cref="KeyNotFoundException">Если категория не найдена</exception>
         public async Task UpdateCategoryAsync(CategoryDto categoryDto)
         {
             if (categoryDto == null)
@@ -100,7 +120,11 @@ namespace TechStore.Application.Services
 
             await _categoryRepository.UpdateCategoryAsync(existingCategory);
         }
-
+        /// <summary>
+        /// Удаляет категорию
+        /// </summary>
+        /// <param name="categoryId">ID категории</param>
+        /// <exception cref="KeyNotFoundException">Если категория не найдена</exception>
         public async Task DeleteCategoryAsync(int categoryId)
         {
             var category = await _categoryRepository.GetCategoryByIdAsync(categoryId);

@@ -13,7 +13,11 @@ namespace TechStore.Infrastracture.Repository
         {
             _context = context;
         }
-
+        /// <summary>
+        /// Получает корзину пользователя по ID пользователя (создает новую, если не существует)
+        /// </summary>
+        /// <param name="userId">ID пользователя</param>
+        /// <returns>Корзина пользователя</returns>
         public async Task<Cart> GetCartByUserIdAsync(string userId)
         {
             var cart = await _context.Carts
@@ -36,7 +40,12 @@ namespace TechStore.Infrastracture.Repository
 
             return cart;
         }
-
+        /// <summary>
+        /// Получает элемент корзины по ID с включенными связанными данными (товар, корзина)
+        /// </summary>
+        /// <param name="cartItemId">ID элемента корзины</param>
+        /// <returns>Найденный элемент корзины</returns>
+        /// <exception cref="KeyNotFoundException">Если элемент не найден</exception>
         public async Task<CartItem> GetCartItemAsync(int cartItemId)
         {
             return await _context.CartItems
@@ -45,32 +54,47 @@ namespace TechStore.Infrastracture.Repository
                 .FirstOrDefaultAsync(i => i.CartItemId == cartItemId)
                 ?? throw new KeyNotFoundException("Cart item not found");
         }
-
+        /// <summary>
+        /// Добавляет новую корзину в базу данных
+        /// </summary>
+        /// <param name="cart">Объект корзины для создания</param>
         public async Task AddCartAsync(Cart cart)
         {
             await _context.Carts.AddAsync(cart);
             await _context.SaveChangesAsync();
         }
-
+        /// <summary>
+        /// Добавляет новый элемент в корзину
+        /// </summary>
+        /// <param name="item">Объект элемента корзины для добавления</param>
         public async Task AddCartItemAsync(CartItem item)
         {
             await _context.CartItems.AddAsync(item);
             await _context.SaveChangesAsync();
         }
-
+        /// <summary>
+        /// Обновляет информацию об элементе корзины
+        /// </summary>
+        /// <param name="item">Объект элемента корзины с обновленными данными</param>
         public async Task UpdateCartItemAsync(CartItem item)
         {
             _context.CartItems.Update(item);
             await _context.SaveChangesAsync();
         }
-
+        /// <summary>
+        /// Удаляет элемент из корзины по ID
+        /// </summary>
+        /// <param name="cartItemId">ID элемента корзины</param>
         public async Task RemoveCartItemAsync(int cartItemId)
         {
             var item = await GetCartItemAsync(cartItemId);
             _context.CartItems.Remove(item);
             await _context.SaveChangesAsync();
         }
-
+        /// <summary>
+        /// Очищает корзину, удаляя все ее элементы
+        /// </summary>
+        /// <param name="cartId">ID корзины</param>
         public async Task ClearCartAsync(int cartId)
         {
             var cart = await _context.Carts
