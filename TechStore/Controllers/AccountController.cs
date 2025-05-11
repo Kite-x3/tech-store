@@ -32,34 +32,43 @@ namespace TechStore.Api.Controllers
         public async Task<IActionResult> Register(RegisterModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
             var user = new User { UserName = model.UserName, Email = model.Email };
             var result = await _userManager.CreateAsync(user, model.Password);
 
-            var roles = await _userManager.GetRolesAsync(user);
-            string userRole = roles.FirstOrDefault();
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: new[]
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.Role, userRole)
-                },
-                expires: DateTime.UtcNow.AddDays(7),
-                signingCredentials: new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])),
-                    SecurityAlgorithms.HmacSha256)
-            );
             if (result.Succeeded)
             {
-                _logger.LogInformation("Успешная регистрация: {Username} (ID: {UserId})", user.UserName, user.Id);
                 await _userManager.AddToRoleAsync(user, "user");
-                return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token)
-                    , userName = user.UserName, userRole });
+
+                var roles = await _userManager.GetRolesAsync(user);
+                string userRole = roles.FirstOrDefault();
+
+                var token = new JwtSecurityToken(
+                    issuer: _configuration["Jwt:Issuer"],
+                    audience: _configuration["Jwt:Audience"],
+                    claims: new[]
+                    {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, userRole)
+                    },
+                    expires: DateTime.UtcNow.AddDays(7),
+                    signingCredentials: new SigningCredentials(
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])),
+                        SecurityAlgorithms.HmacSha256)
+                );
+
+                _logger.LogInformation("Успешная регистрация: {Username} (ID: {UserId})", user.UserName, user.Id);
+
+                return Ok(new
+                {
+                    Token = new JwtSecurityTokenHandler().WriteToken(token),
+                    userName = user.UserName,
+                    userRole
+                });
             }
+
             return BadRequest(result.Errors);
         }
 

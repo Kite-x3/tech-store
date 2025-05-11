@@ -12,7 +12,7 @@ namespace TechStore.Domain.Interfaces
             decimal? minPrice,
             decimal? maxPrice);
         Task<Product> GetProductByIdAsync(int id);
-        Task<IEnumerable<Product>> GetProductsAsync();
+        Task<IEnumerable<Product>> GetProductsAsync(int count=10);
         Task CreateProductAsync(Product product);
         Task UpdateProductAsync(Product product);
         Task DeleteProductAsync(int id);

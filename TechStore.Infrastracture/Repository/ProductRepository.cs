@@ -106,25 +106,23 @@ namespace TechStore.Infrastracture.Repository
         /// <summary>
         /// получение нескольких случайных товаров для главной страницы
         /// </summary>
+        /// /// <param name="count">число случайных товаров (по стандарту 10)</param>
         /// <returns>Список случайных товаров</returns>
-        public async Task<IEnumerable<Product>> GetProductsAsync()
+        public async Task<IEnumerable<Product>> GetProductsAsync(int count = 10)
         {
+            var totalCount = await _context.Products.CountAsync();
+
+            if (totalCount == 0)
+                return Enumerable.Empty<Product>();
+
+            var takeCount = Math.Min(count, totalCount);
             var random = new Random();
-            var count = await _context.Products.CountAsync();
-            var products = new List<Product>();
 
-            for (int i = 0; i < 10; i++)
-            {
-                var skip = random.Next(0, count);
-                var product = await _context.Products
-                    .Skip(skip)
-                    .FirstOrDefaultAsync();
-
-                if (product != null)
-                    products.Add(product);
-            }
-
-            return products;
+            // Используем один запрос с ORDER BY NEWID() (для SQL Server)
+            return await _context.Products
+                .OrderBy(p => EF.Functions.Random())
+                .Take(takeCount)
+                .ToListAsync();
         }
         /// <summary>
         /// Обновляет информацию о товаре в базе данных
