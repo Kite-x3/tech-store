@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TechStore.Application.DTOs;
 using TechStore.Application.Services;
 
@@ -42,13 +44,16 @@ namespace TechStore.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<ReviewDto>> Create([FromBody] ReviewDto reviewDto)
         {
             try
             {
-                await _reviewService.CreateReviewAsync(reviewDto);
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+                await _reviewService.CreateReviewAsync(reviewDto, userId);
                 return CreatedAtAction(nameof(GetById), new { id = reviewDto.Id }, reviewDto);
             }
             catch (Exception ex)
@@ -56,7 +61,7 @@ namespace TechStore.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

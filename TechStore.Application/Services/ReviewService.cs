@@ -65,7 +65,7 @@ namespace TechStore.Application.Services
         /// <param name="reviewDto">DTO с данными отзыва</param>
         /// <exception cref="ArgumentNullException">Если данные отзыва не указаны</exception>
         /// <exception cref="ArgumentException">Если товар не существует</exception>
-        public async Task CreateReviewAsync(ReviewDto reviewDto)
+        public async Task CreateReviewAsync(ReviewDto reviewDto, string userId)
         {
             if (reviewDto == null)
                 throw new ArgumentNullException(nameof(reviewDto));
@@ -80,7 +80,8 @@ namespace TechStore.Application.Services
                 Rating = reviewDto.Rating,
                 Comment = reviewDto.Comment,
                 Date = DateTime.UtcNow,
-                ProductId = reviewDto.ProductId
+                ProductId = reviewDto.ProductId,
+                AuthorID = userId
             };
 
             await _reviewRepository.CreateReviewAsync(review);

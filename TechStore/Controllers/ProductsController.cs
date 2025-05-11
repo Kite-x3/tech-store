@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TechStore.Application.DTOs;
@@ -38,7 +39,7 @@ namespace TechStore.Controllers
             return Ok(product);
         }
 
-        //[Authorize(Roles = "admin")] 
+        [Authorize(Roles = "admin")] 
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> CreateProduct([FromForm] ProductDto request)
@@ -84,7 +85,7 @@ namespace TechStore.Controllers
             }
         }
 
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UpdateProductAsync(
@@ -125,7 +126,7 @@ namespace TechStore.Controllers
             }
         }
 
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProductAsync(int id)
         {
