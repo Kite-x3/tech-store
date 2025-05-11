@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TechStore.Application.DTOs;
 using TechStore.Application.Services;
+using TechStore.Domain.Entities;
 
 namespace TechStore.Controllers
 {
@@ -11,10 +12,12 @@ namespace TechStore.Controllers
     public class ReviewsController : ControllerBase
     {
         private readonly ReviewService _reviewService;
+        private readonly ILogger<ReviewsController> _logger;
 
-        public ReviewsController(ReviewService reviewService)
+        public ReviewsController(ReviewService reviewService, ILogger<ReviewsController> logger)
         {
             _reviewService = reviewService;
+            _logger = logger;
         }
 
         [HttpGet("product/{productId}")]
@@ -54,6 +57,8 @@ namespace TechStore.Controllers
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized();
                 await _reviewService.CreateReviewAsync(reviewDto, userId);
+                _logger.LogInformation("Отзыв ID {ReviewId} создан (User: {UserId}, Продукт: {ProductId})",
+            reviewDto.Id, userId, reviewDto.ProductId);
                 return CreatedAtAction(nameof(GetById), new { id = reviewDto.Id }, reviewDto);
             }
             catch (Exception ex)
@@ -67,7 +72,9 @@ namespace TechStore.Controllers
         {
             try
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 await _reviewService.DeleteReviewAsync(id);
+                _logger.LogInformation("Отзыв ID {ReviewId} удален (Admin: {UserId})", id, userId);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

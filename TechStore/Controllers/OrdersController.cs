@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TechStore.Application.DTOs;
 using TechStore.Application.Services;
+using TechStore.Domain.Entities;
 
 namespace TechStore.Api.Controllers
 {
@@ -12,10 +13,12 @@ namespace TechStore.Api.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly OrderService _orderService;
+        private readonly ILogger<OrdersController> _logger;
 
-        public OrdersController(OrderService orderService)
+        public OrdersController(OrderService orderService, ILogger<OrdersController> logger)
         {
             _orderService = orderService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -52,6 +55,8 @@ namespace TechStore.Api.Controllers
                 return Unauthorized();
 
             var order = await _orderService.CreateOrderAsync(userId, orderDto);
+            _logger.LogInformation("Заказ ID {OrderId} создан (User: {UserId}, Сумма: {Total})",
+            order.OrderId, userId, order.TotalAmount);
             return CreatedAtAction(nameof(GetOrderById), new { id = order.OrderId }, order);
         }
 
@@ -61,7 +66,10 @@ namespace TechStore.Api.Controllers
         {
             try
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 await _orderService.UpdateOrderStatusAsync(id, statusId);
+                _logger.LogInformation("Статус заказа {OrderId} изменен на {StatusId} (Admin: {UserId})",
+            id, statusId, userId);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

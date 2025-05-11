@@ -68,6 +68,8 @@ builder.Services.AddScoped<ImageService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 
+builder.Logging.AddProvider(new FileLoggerProvider("Logs/app.log"));
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

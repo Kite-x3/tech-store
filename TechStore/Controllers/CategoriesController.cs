@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TechStore.Application.DTOs;
 using TechStore.Application.Services;
+using TechStore.Domain.Entities;
 
 namespace TechStore.Api.Controllers
 {
@@ -10,10 +12,12 @@ namespace TechStore.Api.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly CategoryService _categoryService;
+        private readonly ILogger<CategoriesController> _logger;
 
-        public CategoriesController(CategoryService categoryService)
+        public CategoriesController(CategoryService categoryService, ILogger<CategoriesController> logger)
         {
             _categoryService = categoryService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -37,14 +41,20 @@ namespace TechStore.Api.Controllers
             {
                 return BadRequest();
             }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             await _categoryService.UpdateCategoryAsync(category);
+            _logger.LogInformation("Категория {CategoryName} измененена (Admin: {UserId})",
+                category.Name, userId);
             return NoContent();
         }
         [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> AddCategoryAsync(CategoryDto category)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             await _categoryService.AddCategoryAsync(category);
+            _logger.LogInformation("Категория {CategoryName} добавлена (Admin: {UserId})",
+            category.Name, userId);
             return Ok();
         }
         [Authorize(Roles = "admin")]
@@ -53,7 +63,10 @@ namespace TechStore.Api.Controllers
         {
             try
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 await _categoryService.DeleteCategoryAsync(id);
+                _logger.LogInformation("Категория (Id: {id}) удалена (Admin: {UserId})",
+                    id, userId);
                 return NoContent();
             }
             catch (ApplicationException ex)

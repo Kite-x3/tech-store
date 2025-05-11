@@ -13,10 +13,12 @@ namespace TechStore.Api.Controllers
     public class CartsController : ControllerBase
     {
         private readonly CartService _cartService;
+        private readonly ILogger<CartsController> _logger;
 
-        public CartsController(CartService cartService)
+        public CartsController(CartService cartService, ILogger<CartsController> logger)
         {
             _cartService = cartService;
+            _logger = logger;   
         }
 
         [HttpGet]
@@ -32,6 +34,8 @@ namespace TechStore.Api.Controllers
         {
             var userId = User.Identity.Name;
             var cart = await _cartService.AddItemToCartAsync(userId, request.ProductId, request.Quantity);
+            _logger.LogInformation("Корзина обновлена (User: {UserId}, Товаров: {ItemsCount})",
+            userId, cart.Items.Count);
             return Ok(cart);
         }
 
@@ -54,6 +58,7 @@ namespace TechStore.Api.Controllers
         {
             var userId = User.Identity.Name;
             await _cartService.ClearCartAsync(userId);
+            _logger.LogInformation("Корзина очищена (User: {UserId})", userId);
             return NoContent();
         }
     }

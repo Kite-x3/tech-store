@@ -18,11 +18,14 @@ namespace TechStore.Api.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(UserManager<User> userManager, IConfiguration configuration)
+        public AccountController(UserManager<User> userManager, IConfiguration configuration,
+        ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _logger = logger;
         }
 
         [HttpPost("register")]
@@ -52,6 +55,7 @@ namespace TechStore.Api.Controllers
             );
             if (result.Succeeded)
             {
+                _logger.LogInformation("Успешная регистрация: {Username} (ID: {UserId})", user.UserName, user.Id);
                 await _userManager.AddToRoleAsync(user, "user");
                 return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token)
                     , userName = user.UserName, userRole });
@@ -86,7 +90,7 @@ namespace TechStore.Api.Controllers
                     new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])),
                     SecurityAlgorithms.HmacSha256)
             );
-
+            _logger.LogInformation("Успешный вход: {Username} (ID: {UserId})", user.UserName, user.Id);
             return Ok(new
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),

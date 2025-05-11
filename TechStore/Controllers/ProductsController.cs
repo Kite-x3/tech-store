@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Text.Json;
 using TechStore.Application.DTOs;
 using TechStore.Application.Services;
+using TechStore.Domain.Entities;
 
 namespace TechStore.Controllers
 {
@@ -11,10 +13,12 @@ namespace TechStore.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ProductService _productService;
+        private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(ProductService productService)
+        public ProductsController(ProductService productService, ILogger<ProductsController> logger)
         {
             _productService = productService;
+            _logger = logger;   
         }
 
         [HttpGet]
@@ -51,7 +55,7 @@ namespace TechStore.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 // Получаем файлы изображений
                 var imageFiles = Request.Form.Files
                     .Where(f => f.Name.StartsWith("image")) // соответствие клиентской части
@@ -68,7 +72,8 @@ namespace TechStore.Controllers
 
                 // Вызываем сервис
                 await _productService.CreateProductAsync(productDto, imageFiles);
-
+                _logger.LogInformation("Товар создан: ID {ProductId}, {ProductName} (Admin: {UserId})",
+            productDto.Id, productDto.ProductName, userId);
                 // Формируем ответ с DTO созданного продукта
                 return CreatedAtAction(
                     nameof(GetProductById),
@@ -101,6 +106,7 @@ namespace TechStore.Controllers
 
             try
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 // Получаем новые изображения
                 var newImageFiles = Request.Form.Files
                     .Where(f => f.Name.StartsWith("image"))
@@ -114,7 +120,7 @@ namespace TechStore.Controllers
                 }
 
                 await _productService.UpdateProductAsync(request, newImageFiles, imagesToDeleteList);
-
+                _logger.LogInformation("Товар ID {ProductId} обновлен (Admin: {UserId})", id, userId);
                 return CreatedAtAction(
                     nameof(GetProductById),
                     new { id = request.Id },
@@ -132,7 +138,9 @@ namespace TechStore.Controllers
         {
             try
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 await _productService.DeleteProductAsync(id);
+                _logger.LogInformation("Товар ID {ProductId} удален (Admin: {UserId})", id, userId);
                 return NoContent();
             }
             catch (Exception ex)
